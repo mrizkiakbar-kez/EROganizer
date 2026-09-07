@@ -165,6 +165,7 @@ class AuthController extends Controller
         if ($latestMember) {
             $latestId = $latestMember->id + 1;
         }
+
         do {
             $kodeAnggota = 'MBR' . str_pad($latestId, 3, '0', STR_PAD_LEFT);
             $exists = Member::where('kode_anggota', $kodeAnggota)->exists();
@@ -184,12 +185,7 @@ class AuthController extends Controller
             'role' => 'member',
         ]);
 
-        // Log the user in on both guard and session
-        Auth::login($user);
-        session(['member_id' => $member->id, 'member' => $member]);
-        $request->session()->regenerate();
-
-        return redirect()->route('member.dashboard')->with('success', 'Akun berhasil didaftarkan!');
+        return redirect()->route('login')->with('success', 'Account created successfully. Please log in to continue.');
     }
 
     public function logout(Request $request)

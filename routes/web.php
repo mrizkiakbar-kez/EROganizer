@@ -1,13 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\BookController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\BorrowingController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\ReportController;
+use App\Http\Controllers\RoomBookingController;
+use App\Http\Controllers\RoomController;
 
 Route::get('/', function () {
     if (Illuminate\Support\Facades\Auth::check()) {
@@ -30,22 +28,14 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'admin'])->name('dashboard');
 
-    // Book Management
-    Route::resource('books', BookController::class);
-
-    // Category Management
-    Route::resource('categories', CategoryController::class);
-
     // Member Management
     Route::resource('members', MemberController::class);
-    
-    // Borrowing Management (Admin sees all)
-    Route::resource('borrowings', BorrowingController::class)->only(['index','show']);
 
-    // Reports
-    Route::get('/reports', [ReportController::class, 'index'])->name('reports');
-    Route::get('/reports/print', [ReportController::class, 'print'])->name('reports.print');
-    Route::get('/reports/pdf', [ReportController::class, 'pdf'])->name('reports.pdf');
+    // Faculty room management and reservations
+    Route::resource('rooms', RoomController::class)->except(['show']);
+    Route::get('/room-bookings', [RoomBookingController::class, 'adminIndex'])->name('room-bookings.index');
+    Route::patch('/room-bookings/{roomBooking}/status', [RoomBookingController::class, 'updateStatus'])->name('room-bookings.status');
+
 });
 
 // Member Routes - Limited Access
@@ -53,17 +43,10 @@ Route::middleware(['is_member'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'member'])->name('member.dashboard');
 
-    // Members can browse books
-    Route::get('/books', [BookController::class, 'index'])->name('books.index');
-    Route::get('/books/{book}', [BookController::class, 'show'])->name('books.show');
-    
-    // Members can view and create borrowing requests
-    Route::get('/borrowings', [BorrowingController::class, 'index'])->name('borrowings.index');
-    Route::get('/borrowings/create', [BorrowingController::class, 'create'])->name('borrowings.create');
-    Route::post('/borrowings', [BorrowingController::class, 'store'])->name('borrowings.store');
-    Route::get('/borrowings/{id}', [BorrowingController::class, 'show'])->name('borrowings.show');
-    Route::post('/borrowings/{id}/return', [BorrowingController::class, 'returnBook'])->name('borrowings.return');
-    Route::post('/borrow/{book_id}', [BorrowingController::class, 'borrowDirect'])->name('books.borrow');
+    Route::get('/rooms', [RoomController::class, 'memberIndex'])->name('rooms.index');
+    Route::post('/rooms/{room}/book', [RoomBookingController::class, 'store'])->name('rooms.book');
+    Route::get('/room-bookings', [RoomBookingController::class, 'index'])->name('room-bookings.index');
+    Route::patch('/room-bookings/{roomBooking}/cancel', [RoomBookingController::class, 'cancel'])->name('room-bookings.cancel');
     Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('member.profile');
     Route::post('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('member.profile.update');
 });

@@ -4,14 +4,14 @@
         <span>Dashboard</span>
     </a>
 
-    <a href="{{ route('books.index') }}" class="{{ Route::currentRouteName() === 'books.index' ? 'active' : '' }}">
-        <i class="bi bi-book"></i>
-        <span>Books</span>
+    <a href="{{ route('rooms.index') }}" class="{{ Route::currentRouteName() === 'rooms.index' ? 'active' : '' }}">
+        <i class="bi bi-door-open"></i>
+        <span>Faculty Rooms</span>
     </a>
 
-    <a href="{{ route('borrowings.index') }}" class="{{ str_starts_with(Route::currentRouteName(), 'borrowings') ? 'active' : '' }}">
-        <i class="bi bi-journal-check"></i>
-        <span>My Borrowings</span>
+    <a href="{{ route('room-bookings.index') }}" class="{{ str_starts_with(Route::currentRouteName(), 'room-bookings') ? 'active' : '' }}">
+        <i class="bi bi-calendar-check"></i>
+        <span>My Room Bookings</span>
     </a>
 
     <a href="{{ route('member.profile') }}" class="{{ Route::currentRouteName() === 'member.profile' ? 'active' : '' }}">

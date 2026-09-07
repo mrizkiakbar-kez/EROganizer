@@ -2,23 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Book;
-use App\Models\Borrowing;
 use App\Models\Member;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Room;
+use App\Models\RoomBooking;
 
 class DashboardController extends Controller
 {
     public function admin()
     {
-        $totalBooks = Book::count();
         $totalMembers = Member::count();
-        $activeBorrowings = Borrowing::where('status', 'borrowed')->count();
+        $totalRooms = Room::count();
+        $activeRoomBookings = RoomBooking::where('status', 'approved')
+            ->where('end_at', '>=', now())->count();
+        $recentRoomBookings = RoomBooking::with(['user', 'room'])->latest('start_at')->limit(10)->get();
 
-        $recent = Borrowing::with(['user', 'book'])->latest()->limit(10)->get();
-
-        return view('dashboard.admin', compact('totalBooks', 'totalMembers', 'activeBorrowings', 'recent'));
+        return view('dashboard.admin', compact('totalMembers', 'totalRooms', 'activeRoomBookings', 'recentRoomBookings'));
     }
 
     public function member()
@@ -36,25 +36,11 @@ class DashboardController extends Controller
             return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
         }
 
-        // Total borrowings
-        $totalBorrowed = Borrowing::where('user_id', $userId)->count();
+        $activeRoomBookings = RoomBooking::where('user_id', $userId)
+            ->where('status', 'approved')->where('end_at', '>=', now())->count();
+        $recentRoomBookings = RoomBooking::where('user_id', $userId)
+            ->with('room')->latest('start_at')->limit(10)->get();
 
-        // Active borrowings
-        $activeBorrowings = Borrowing::where('user_id', $userId)->where('status', 'borrowed')->count();
-        
-        // Overdue borrowings
-        $overdueBorrowings = Borrowing::where('user_id', $userId)
-            ->where('status', 'borrowed')
-            ->where('due_date', '<', now()->toDateString())
-            ->count();
-
-        // Recent borrowing history
-        $recent = Borrowing::where('user_id', $userId)
-            ->with('book')
-            ->latest()
-            ->limit(10)
-            ->get();
-
-        return view('dashboard.member', compact('totalBorrowed', 'activeBorrowings', 'overdueBorrowings', 'recent', 'member'));
+        return view('dashboard.member', compact('member', 'activeRoomBookings', 'recentRoomBookings'));
     }
 }

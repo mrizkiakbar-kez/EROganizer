@@ -2,7 +2,7 @@
 
     <strong>
 
-        Sistem Informasi Perpustakaan
+        EROganizer Faculty Room Organizer
 
     </strong>
 

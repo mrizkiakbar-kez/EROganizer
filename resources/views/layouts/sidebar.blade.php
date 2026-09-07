@@ -1,7 +1,7 @@
 <div class="sidebar">
     <div class="sidebar-brand">
-        <i class="bi bi-book"></i>
-        <span>Perpustakaan UB</span>
+        <i class="bi bi-door-open"></i>
+        <span>EROganizer</span>
     </div>
 
     @if(Auth::check() && Auth::user()->role === 'admin')

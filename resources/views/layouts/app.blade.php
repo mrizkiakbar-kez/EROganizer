@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perpustakaan UB</title>
+    <title>EROganizer</title>
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -378,12 +378,8 @@
                     <button id="toggleSidebar" class="btn btn-outline-secondary btn-sm d-md-none">
                         <i class="bi bi-list"></i>
                     </button>
-                    <a class="navbar-brand" href="{{ Auth::check() ? route('admin.dashboard') : (session()->has('member_id') ? route('member.dashboard') : '#') }}">Perpustakaan UB</a>
+                    <a class="navbar-brand" href="{{ Auth::check() ? route('admin.dashboard') : (session()->has('member_id') ? route('member.dashboard') : '#') }}">Efficient Room Organizer</a>
                 </div>
-
-                <form class="d-flex me-3" action="{{ Auth::check() ? route('admin.books.index') : route('books.index') }}" method="GET">
-                    <input class="search-bar" name="q" type="search" placeholder="Cari buku, penulis, penerbit..." value="{{ $q ?? '' }}" aria-label="Search">
-                </form>
 
                 <div class="d-flex align-items-center gap-2">
                     <span class="text-muted small">

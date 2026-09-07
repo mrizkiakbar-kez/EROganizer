@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 
 use App\Models\User;
-use App\Models\Borrowing;
+use App\Models\RoomBooking;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -26,16 +26,12 @@ class MemberController extends Controller
             $member->user_id = $user?->id;
             $member->user_role = $user?->role ?? $member->role;
             if ($user) {
-                $member->active_borrowings_count = Borrowing::where('user_id', $user->id)
-                    ->where('status', 'borrowed')
-                    ->count();
-                $member->overdue_borrowings_count = Borrowing::where('user_id', $user->id)
-                    ->where('status', 'borrowed')
-                    ->where('due_date', '<', now()->toDateString())
+                $member->active_room_bookings_count = RoomBooking::where('user_id', $user->id)
+                    ->whereIn('status', ['pending', 'approved'])
+                    ->where('end_at', '>=', now())
                     ->count();
             } else {
-                $member->active_borrowings_count = 0;
-                $member->overdue_borrowings_count = 0;
+                $member->active_room_bookings_count = 0;
             }
         }
 
@@ -59,15 +55,15 @@ class MemberController extends Controller
         }
 
         $user = User::where('email', $member->email)->first();
-        $borrowings = collect();
+        $roomBookings = collect();
         if ($user) {
-            $borrowings = Borrowing::where('user_id', $user->id)
-                ->with('book')
-                ->latest()
+            $roomBookings = RoomBooking::where('user_id', $user->id)
+                ->with('room')
+                ->latest('start_at')
                 ->get();
         }
 
-        return view('members.show', compact('member', 'user', 'borrowings'));
+        return view('members.show', compact('member', 'user', 'roomBookings'));
     }
 
     public function edit(Member $member)
@@ -98,18 +94,6 @@ class MemberController extends Controller
             return redirect()->back()->with('error', 'Tidak dapat menghapus akun Admin.');
         }
 
-        if ($user) {
-            // Prevent deleting members who still have active/overdue borrowed books.
-            $hasActiveOrOverdue = Borrowing::where('user_id', $user->id)
-                ->where('status', 'borrowed')
-                ->exists();
-
-            if ($hasActiveOrOverdue) {
-                return redirect()->back()->with('error', 'This member cannot be removed because they still have active borrowing records.');
-            }
-        }
-
-        // Use database transactions to ensure data integrity.
         DB::beginTransaction();
         try {
             if ($user) {

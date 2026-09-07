@@ -51,8 +51,7 @@
                                                 data-id="{{ $m->id }}"
                                                 data-name="{{ $m->nama }}"
                                                 data-reg-date="{{ $m->created_at->format('d M Y') }}"
-                                                data-active-borrowings="{{ $m->active_borrowings_count }}"
-                                                data-overdue-borrowings="{{ $m->overdue_borrowings_count }}"
+                                                data-active-room-bookings="{{ $m->active_room_bookings_count }}"
                                                 data-role="{{ $m->user_role }}"
                                                 data-is-self="{{ $m->user_id === Auth::id() ? 'true' : 'false' }}">
                                                 <i class="bi bi-trash me-1"></i>Remove
@@ -98,8 +97,8 @@
                         <span class="text-white fw-medium" id="modal-reg-date">-</span>
                     </div>
                     <div class="d-flex justify-content-between">
-                        <span class="text-muted small">Current Borrowing Status:</span>
-                        <span id="modal-borrowing-status">-</span>
+                        <span class="text-muted small">Current Room Bookings:</span>
+                        <span id="modal-room-booking-status">-</span>
                     </div>
                 </div>
 
@@ -128,8 +127,7 @@ $(document).ready(function() {
         var id = $(this).data('id');
         var name = $(this).data('name');
         var regDate = $(this).data('reg-date');
-        var activeBorrowings = parseInt($(this).data('active-borrowings')) || 0;
-        var overdueBorrowings = parseInt($(this).data('overdue-borrowings')) || 0;
+        var activeRoomBookings = parseInt($(this).data('active-room-bookings')) || 0;
         var role = $(this).data('role');
         var isSelf = $(this).data('is-self') === true || $(this).data('is-self') === 'true';
 
@@ -137,12 +135,10 @@ $(document).ready(function() {
         $('#modal-member-name').text(name);
         $('#modal-reg-date').text(regDate);
 
-        // Calculate and set borrowing status text
-        if (activeBorrowings === 0) {
-            $('#modal-borrowing-status').html('<span class="text-success fw-medium"><i class="bi bi-check-circle-fill me-1"></i>No active borrowings</span>');
+        if (activeRoomBookings === 0) {
+            $('#modal-room-booking-status').html('<span class="text-success fw-medium"><i class="bi bi-check-circle-fill me-1"></i>No active room bookings</span>');
         } else {
-            var overdueText = overdueBorrowings > 0 ? ' (' + overdueBorrowings + ' overdue)' : '';
-            $('#modal-borrowing-status').html('<span class="text-warning fw-bold"><i class="bi bi-exclamation-triangle-fill me-1"></i>' + activeBorrowings + ' active borrowing(s)' + overdueText + '</span>');
+            $('#modal-room-booking-status').html('<span class="text-warning fw-bold"><i class="bi bi-calendar-check me-1"></i>' + activeRoomBookings + ' active room booking(s)</span>');
         }
 
         // Set form action
@@ -161,9 +157,6 @@ $(document).ready(function() {
             removeBtn.prop('disabled', true);
         } else if (role === 'admin') {
             errorMsgElement.text('Tidak dapat menghapus akun Admin.').show();
-            removeBtn.prop('disabled', true);
-        } else if (activeBorrowings > 0) {
-            errorMsgElement.text('This member cannot be removed because they still have active borrowing records.').show();
             removeBtn.prop('disabled', true);
         }
 

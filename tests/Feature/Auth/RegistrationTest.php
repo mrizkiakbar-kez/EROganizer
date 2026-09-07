@@ -25,8 +25,8 @@ class RegistrationTest extends TestCase
             'password_confirmation' => 'password',
         ]);
 
-        $this->assertAuthenticated();
-        $response->assertRedirect(route('member.dashboard', absolute: false));
+        $this->assertGuest();
+        $response->assertRedirect(route('login', absolute: false));
 
         $this->assertDatabaseHas('users', [
             'email' => 'test@example.com',
@@ -72,7 +72,7 @@ class RegistrationTest extends TestCase
             'password_confirmation' => 'password',
         ]);
 
-        $response->assertRedirect(route('member.dashboard', absolute: false));
+        $response->assertRedirect(route('login', absolute: false));
 
         // 4. Assert new user was registered with kode_anggota MBR003
         $this->assertDatabaseHas('members', [
